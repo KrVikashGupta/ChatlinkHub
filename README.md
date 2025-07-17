@@ -91,10 +91,83 @@ Follow these steps to set up **ChatlinkHub** on your local machine.
 
 ---
 
+
 ### 📝 Steps to Get Started
 
-1️⃣ **Clone the Project**
+1. **Clone the Project**  
+   Open your terminal and run the following commands:
 
-```bash
-git clone https://github.com/KrVikashGupta/ChatlinkHub.git
-cd ChatlinkHub
+   ```bash
+   git clone https://github.com/KrVikashGupta/ChatlinkHub.git
+   cd ChatlinkHub
+   ```
+
+2. **Set Up Environment Files**
+
+    - Inside the root directory, you will see two folders: api and client.
+    - Navigate to the api folder:
+        ```bash
+        cd api
+        ```
+    
+        Create a .env file by copying the content from .api.env.example:
+        ```bash
+        cp ..api.env.example .env
+        ```
+    - Obtain your credentials by creating an account on the respective websites.
+    - Replace env variables with your credentials 
+
+    - Navigate to the client folder:
+        ```bash
+        cd ../client
+        ```
+
+        Create a .env file here too by copying the content from .client.env.example:
+        ```bash
+        cp .client.env.example .env
+        ```
+
+3. **Run the API and Client**
+
+    - First, navigate to the api directory to start the backend server:
+        ```bash
+        cd api
+        npm install
+        npm run dev
+        ```
+
+    - Open a new terminal window, navigate to the client directory, and start the frontend:
+        ```bash
+        cd client
+        npm install
+        npm run dev
+        ```
+
+4. **Open the Application**
+
+    - Once both the API and client are running, open your browser and go to: http://localhost:5173
+    - You should now see the ChatlinkHub web app! 🎉
+
+## 🎉 Contribute
+
+We welcome contributions to ChatlinkHub! Here's how you can get involved:
+
+1. **Fork and clone the repository**:  
+   Fork this repo and clone it to your local machine to start working.
+
+2. **Create a new branch**:  
+   Create a branch for your changes (e.g., `feature-add-chat-notifications`).
+
+3. **Submit a Pull Request**:  
+   After making your changes, push your branch and create a Pull Request to the main repository.
+
+---
+
+### 🤝 Need Help?
+
+💡 If you get stuck, feel free to reach out!
+
+- Open an issue for help or tag me (@KrVikashGupta) in your PR.
+- You can also contact me at [vikashkumargupta907@gmail.com](mailto:vikashkumargupta907@gmail.com).
+
+Let's make ChatlinkHub even better together! 🚀
