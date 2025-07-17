@@ -2,7 +2,7 @@
 
 **ChatlinkHub** is a sleek, real-time messaging web app featuring customizable profiles and secure authentication. Built with **Node.js, Express, Socket.io, and PostgreSQL** on the backend, and a **responsive React frontend with TypeScript**.
 
-[![CI/CD](https://img.shields.io/github/actions/workflow/status/KrVikashGupta/ChatlinkHub/deploy-to-ec2.yml?label=Deploy&style=flat-square)](https://github.com/KrVikashGupta/ChatlinkHub/actions)
+
 
 🌐 **Live Demo:** [chatlinkhub.my.to](http://chatlinkhub.my.to)
 
