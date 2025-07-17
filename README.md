@@ -1,12 +1,10 @@
-# ![](https://dummyimage.com/600x200/000/fff&text=ChatlinkHub) ChatlinkHub
+# ChatlinkHub
 
-**ChatlinkHub** is a sleek, real-time messaging web app with customizable profiles, secure authentication, and a clean, responsive design. Built with **Node.js, Express, Socket.io, PostgreSQL** on the backend and **React + TypeScript** on the frontend, it delivers seamless real-time messaging with a modern UI.
+**ChatlinkHub** is a sleek, real-time messaging web app featuring customizable profiles and secure authentication. Built with **Node.js, Express, Socket.io, and PostgreSQL** on the backend, and a **responsive React frontend with TypeScript**.
 
 [![CI/CD](https://img.shields.io/github/actions/workflow/status/KrVikashGupta/ChatlinkHub/deploy-to-ec2.yml?label=Deploy&style=flat-square)](https://github.com/KrVikashGupta/ChatlinkHub/actions)
 
 🌐 **Live Demo:** [chatlinkhub.my.to](http://chatlinkhub.my.to)
-
-<img src="https://dummyimage.com/1200x500/222/fff&text=ChatlinkHub+Banner" alt="ChatlinkHub Preview" width="100%" style="border-radius: 20px;">
 
 ---
 
@@ -14,7 +12,7 @@
 
 1. [✨ Features](#-features)
 2. [🛠️ Tech Stack](#️-tech-stack)
-3. [🚀 Getting Started](#-getting-started)
+3. [🚀 How to Run ChatlinkHub Locally](#-how-to-run-chatlinkhub-locally)
 4. [🎉 Contributing](#-contributing)
 5. [📩 Contact](#-contact)
 
@@ -22,61 +20,81 @@
 
 ## ✨ Features
 
-### 👤 User Profiles & Authentication
-- Secure JWT authentication with bcrypt hashing.
-- Registration and login with email and password.
-- Update user profile details with image upload.
-- View online/offline status of users in real-time.
+### 👤 User Authentication & Profiles
 
-### 💬 Real-Time Messaging
-- One-on-one messaging with **Socket.IO**.
-- Live typing indicators and delivery/read receipts.
-- Message timestamps and delivery status.
-- Instant online presence detection.
+- Register via email and JWT login.
+- Search users by email or username.
+- Profile with name, email, username, bio, and profile picture.
+- Upload and update profile pictures with validation.
+- Online/offline status display.
+- Edit and update user profile securely.
 
-### ⚡ Smooth User Experience
-- Responsive UI for mobile and desktop.
-- Live updates without refresh using web sockets.
-- Clean, modern design with potential for dark/light theming.
+---
+
+### 💬 Messaging Features & Read Receipts
+
+- One-on-one real-time text messaging with timestamps.
+- Typing indicators during chat.
+- Message status: sent, delivered, and read with receipts.
+
+---
+
+### ⚡ Real-Time Communication
+
+- Real-time messaging using **Socket.IO**.
+- Instant updates for delivery, read status, and typing indicators.
+- Live online/offline presence tracking.
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### 🌐 Frontend
-- **React + TypeScript**
-- **Redux Toolkit**
-- **Tailwind CSS + Shadcn**
+
+- **React + TypeScript**: Dynamic, responsive UI.
+- **Redux Toolkit**: State management.
+- **Shadcn + Tailwind CSS**: Fast, modern styling.
 
 ### ⚙️ Backend
-- **Node.js + Express**
-- **Socket.IO**
-- **Zod** (validation)
+
+- **Node.js + Express.js**: RESTful APIs.
+- **Socket.IO**: Real-time chat functionality.
 
 ### 🗄️ Database
-- **PostgreSQL**
-- **Supabase** (if used for real-time updates)
 
-### ☁️ DevOps & Cloud
-- **AWS EC2/S3**
-- **Docker**
-- **GitHub Actions**
+- **PostgreSQL**: Relational database for secure storage.
+- **Supabase**: Optional for real-time sync and management.
+
+### ✅ Validation
+
+- **Zod**: Ensures clean data validation.
+
+### ☁️ Cloud & DevOps
+
+- **AWS EC2**: Hosting.
+- **AWS S3**: Profile picture storage.
+- **Docker**: Containerization.
+- **GitHub Actions**: CI/CD for automated deployments.
 
 ---
 
-## 🚀 Getting Started
+## 🚀 How to Run ChatlinkHub Locally
 
-Follow these steps to run **ChatlinkHub** locally.
+Follow these steps to set up **ChatlinkHub** on your local machine.
+
+---
 
 ### 🖥️ Prerequisites
-- [Node.js](https://nodejs.org/)
-- PostgreSQL (local/hosted)
+
+- [Node.js](https://nodejs.org/) (LTS recommended)
+- A PostgreSQL database (local or cloud-hosted)
 
 ---
 
-### 📝 Setup
+### 📝 Steps to Get Started
 
-1️⃣ **Clone the Repository**
+1️⃣ **Clone the Project**
+
 ```bash
 git clone https://github.com/KrVikashGupta/ChatlinkHub.git
 cd ChatlinkHub
