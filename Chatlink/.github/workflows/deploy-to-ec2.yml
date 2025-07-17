@@ -1,0 +1,135 @@
+name: ChatLink CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # allow manual trigger of the pipeline 
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{github.sha}}
+      # environment variables from github secrets
+      VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
+      VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+      PORT: ${{ secrets.PORT }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+      ACCESS_TOKEN_EXPIRY: ${{ secrets.ACCESS_TOKEN_EXPIRY }}
+      REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
+      REFRESH_TOKEN_EXPIRY: ${{ secrets.REFRESH_TOKEN_EXPIRY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+      CLIENT_URL: ${{secrets.CLIENT_URL}}
+
+    steps: 
+      - name: Checkout Code # pulls the latest code from the repo 
+        uses: actions/checkout@v4
+
+      - name: Install Docker Compose # installing doceker-compose on the runner machine
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Log in to Docker Hub # logs in to docker hub to push/pull images
+        uses: docker/login-action@v3
+        with: 
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create env file # creates .env file, will be passed to the ec2
+        run: |
+          echo "VITE_BASE_URL=$VITE_BASE_URL" > .env
+          echo "VITE_API_BASE_URL=$VITE_API_BASE_URL" > .env
+          echo "PORT=$PORT" >> .env
+          echo "DB_HOST=$DB_HOST" >> .env
+          echo "DB_NAME=$DB_NAME" >> .env
+          echo "DB_PORT=$DB_PORT" >> .env
+          echo "DB_USER=$DB_USER" >> .env
+          echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+          echo "ACCESS_TOKEN_SECRET=$ACCESS_TOKEN_SECRET" >> .env
+          echo "ACCESS_TOKEN_EXPIRY=$ACCESS_TOKEN_EXPIRY" >> .env
+          echo "REFRESH_TOKEN_SECRET=$REFRESH_TOKEN_SECRET" >> .env
+          echo "REFRESH_TOKEN_EXPIRY=$REFRESH_TOKEN_EXPIRY" >> .env
+          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> .env
+          echo "AWS_REGION=$AWS_REGION" >> .env
+          echo "AWS_S3_BUCKET_NAME=$AWS_S3_BUCKET_NAME" >> .env
+          echo "CLIENT_URL=$CLIENT_URL" >> .env
+
+      - name: Build and Push Docker Images # builds docker images and pushes them to docker hub
+
+        # build with specific tag
+        run: |
+          IMAGE_TAG=${{github.sha}} docker-compose --env-file .env build --no-cache
+          IMAGE_TAG=${{github.sha}} docker-compose push 
+
+      - name: Prepare EC2 Instance # cleanup step to ensure clean deployment
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p ~/chatlink
+            rm -rf ~/chatlink/nginx
+            rm -f ~/chatlink/docker-compose.yml
+            rm -f ~/chatlink/.env
+
+      - name: Copy docker-compose file # copies docker-compose and .env to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml,.env"
+          target: ~/chatlink/
+          overwrite: true
+
+      - name: Copy nginx directory # copies nginx directory to the EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          source: "nginx/"
+          target: ~/chatlink/
+          overwrite: true
+
+      - name: Deploy to EC2 # pulls latest image, stops running containers and starts new ones
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          # force remove old containers and images
+          script: |
+            cd ~/chatlink
+
+            docker-compose down --rmi all
+            docker system prune -af
+
+            docker volume rm chatlink_client-build || true
+
+            IMAGE_TAG=${{ github.sha }} docker-compose --env-file .env pull
+            IMAGE_TAG=${{ github.sha }} docker-compose --env-file .env up -d
+
+      - name: Verify Deployment # verifies by listing running containers
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/chatlink
+            docker ps
+            docker-compose ps

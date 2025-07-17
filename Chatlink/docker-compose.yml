@@ -1,0 +1,52 @@
+services:
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt:/etc/letsencrypt:ro # Mount Certbot certificates
+      - client-build:/usr/share/nginx/html
+    ports:
+      - "80:80"
+      - "443:443"  
+    depends_on:
+      - client
+      - api
+
+  client:
+    build:
+      context: ./client
+      args:
+        - VITE_BASE_URL=${VITE_BASE_URL}
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+    image: rahul4019/chatlink:client-${IMAGE_TAG:-latest}
+    volumes:
+      - client-build:/usr/share/nginx/html
+    expose:
+      - "80"
+
+  api:
+    build:
+      context: ./api
+    image: rahul4019/chatlink:api-${IMAGE_TAG:-latest}
+    environment:
+      - NODE_ENV=production
+      - PORT=${PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
+      - ACCESS_TOKEN_EXPIRY=${ACCESS_TOKEN_EXPIRY}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - REFRESH_TOKEN_EXPIRY=${REFRESH_TOKEN_EXPIRY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
+      - CLIENT_URL=${CLIENT_URL}
+    expose:
+      - "8000"
+
+volumes:
+  client-build:
